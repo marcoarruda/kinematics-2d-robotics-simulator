@@ -1,4 +1,4 @@
-import { IObjectPosition, IRectangle, SimObject, Simulator } from '../index.js'
+import { IObjectPosition, IRectangle, SimObject, SimObjectWrapper, Simulator } from '../index.js'
 
 import { faker } from '@faker-js/faker'
 import {
@@ -53,7 +53,8 @@ describe('Simulator', () => {
       { position: { x: 0, y: -1 }, err: MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER },
       { position: { x: 0, y: dimensions.y + 1 }, err: MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER },
     ])('$err', (data: { position: IObjectPosition, err: string }) => {
-      expect(() => simulator.spawn(new SimObject(), data.position)).toThrowError(data.err)
+      const simObjectWrapper = new SimObjectWrapper(new SimObject(), data.position)
+      expect(() => simulator.spawn(simObjectWrapper)).toThrowError(data.err)
     })
 
     it('should push to Simulator::objects a new SimObjectWrapper', () => {
@@ -62,9 +63,45 @@ describe('Simulator', () => {
         y: faker.datatype.number({ min: 0, max: dimensions.y }),
       }
 
-      simulator.spawn(new SimObject(), position)
+      const simObjectWrapper = new SimObjectWrapper(new SimObject(), position)
+
+      simulator.spawn(simObjectWrapper)
 
       expect(simulator.getObjects()).toHaveLength(1)
+    })
+  })
+
+  describe('Simulator::getObjects', () => {
+    it('should return all objects', () => {
+      const simulation = new Simulator(0, { x: 10, y: 10 })
+
+      const objects = [
+        new SimObjectWrapper(new SimObject(), { x: 0, y: 0 }, false),
+        new SimObjectWrapper(new SimObject(), { x: 1, y: 0 }, true)
+      ]
+
+      simulation.setObjects(objects)
+
+      expect(simulation.getObjects()).toHaveLength(objects.length)
+    })
+  })
+
+  describe('Simulator::getDynamicObjects', () => {
+    it('should return only dynamic objects', () => {
+      const simulation = new Simulator(0, { x: 10, y: 10 })
+
+      const staticObjects = [
+        new SimObjectWrapper(new SimObject(), { x: 0, y: 0 }, false),
+        new SimObjectWrapper(new SimObject(), { x: 1, y: 0 }, false)
+      ]
+
+      const dynamicObjects = [
+        new SimObjectWrapper(new SimObject(), { x: 2, y: 0 }, true),
+      ]
+
+      simulation.setObjects([...staticObjects, ...dynamicObjects])
+
+      expect(simulation.getDynamicObjects()).toHaveLength(dynamicObjects.length)
     })
   })
 })

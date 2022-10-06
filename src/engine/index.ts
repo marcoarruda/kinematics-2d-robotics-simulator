@@ -17,8 +17,22 @@ export enum EnumObjectCommand {
   TURN_RIGHT_90,
 }
 
-class SimObjectWrapper {
-  constructor(private simObject: SimObject, private position: IObjectPosition) { }
+export interface ISimulationStep {
+  objects: SimObject
+}
+
+export class SimObjectWrapper {
+  private command: EnumObjectCommand = EnumObjectCommand.STOP
+
+  constructor(
+    private simObject: SimObject,
+    private position: IObjectPosition,
+    public dynamic: boolean = false,
+  ) { }
+
+  getCommand(): EnumObjectCommand {
+    return this.command
+  }
 
   getSimObject(): SimObject {
     return this.simObject
@@ -38,9 +52,34 @@ export class Simulator {
   loop(): number {
     if (!this.dimensions) throw Error(MSG_ERR_DIMENSIONS_NOT_SET)
 
+    this.calculateNextStep()
+
+    this.calculateNextCommands()
+
     this.step++
 
     return this.step
+  }
+
+  calculateNextStep(): void {
+    for (const objectWrapper of this.getDynamicObjects()) {
+      this.calculateObjectNextStep(objectWrapper)
+    }
+    return
+  }
+
+  calculateObjectNextStep(objectWrapper: SimObjectWrapper): void {
+    return
+  }
+
+  calculateNextCommands(): void {
+    return
+  }
+
+  setObjects(objects: SimObjectWrapper[]): void {
+    for (const objectWrapper of objects) {
+      this.spawn(objectWrapper)
+    }
   }
 
   getDimensions(): IRectangle {
@@ -51,26 +90,23 @@ export class Simulator {
     return this.objects
   }
 
-  spawn(object: SimObject, position: IObjectPosition): void {
-    if (position.x < 0)
+  getDynamicObjects(): SimObjectWrapper[] {
+    return this.objects.filter(objectWrapper => objectWrapper.dynamic)
+  }
+
+  spawn(objectWrapper): void {
+    if (objectWrapper.position.x < 0)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_LOWER)
-    if (position.x > this.dimensions.x)
+    if (objectWrapper.position.x > this.dimensions.x)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_HIGHER)
-    if (position.y < 0)
+    if (objectWrapper.position.y < 0)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER)
-    if (position.y > this.dimensions.y)
+    if (objectWrapper.position.y > this.dimensions.y)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER)
 
-    const simObjectWrapper = new SimObjectWrapper(object, position)
-
-    this.objects.push(simObjectWrapper)
+    this.objects.push(objectWrapper)
   }
 }
 
 export class SimObject {
-  constructor(public dynamic: boolean = false, private command: EnumObjectCommand = EnumObjectCommand.STOP) { }
-
-  getCommand(): EnumObjectCommand {
-    return this.command
-  }
 }
