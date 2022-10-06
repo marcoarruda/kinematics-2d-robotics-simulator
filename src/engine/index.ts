@@ -10,6 +10,13 @@ export interface IObjectPosition {
   y: number
 }
 
+export enum EnumObjectCommand {
+  STOP,
+  FORWARD,
+  TURN_LEFT_90,
+  TURN_RIGHT_90,
+}
+
 class SimObjectWrapper {
   constructor(private simObject: SimObject, private position: IObjectPosition) { }
 
@@ -25,15 +32,15 @@ class SimObjectWrapper {
 export class Simulator {
   private objects: SimObjectWrapper[] = []
 
-  constructor(private timer: number, private dimensions?: IRectangle) {
+  constructor(private step: number, private dimensions?: IRectangle) {
   }
 
   loop(): number {
     if (!this.dimensions) throw Error(MSG_ERR_DIMENSIONS_NOT_SET)
 
-    this.timer++
+    this.step++
 
-    return this.timer
+    return this.step
   }
 
   getDimensions(): IRectangle {
@@ -61,4 +68,9 @@ export class Simulator {
 }
 
 export class SimObject {
+  constructor(public dynamic: boolean = false, private command: EnumObjectCommand = EnumObjectCommand.STOP) { }
+
+  getCommand(): EnumObjectCommand {
+    return this.command
+  }
 }

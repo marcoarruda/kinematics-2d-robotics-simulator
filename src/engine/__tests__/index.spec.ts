@@ -1,4 +1,4 @@
-import { IObjectPosition, IRectangle, Simulator } from '../index.js'
+import { IObjectPosition, IRectangle, SimObject, Simulator } from '../index.js'
 
 import { faker } from '@faker-js/faker'
 import {
@@ -12,8 +12,8 @@ import {
 describe('Simulator', () => {
   describe('no dimensions set', () => {
     it('loop throws exception if dimensions are not set', () => {
-      const timer = faker.datatype.number()
-      const simulator = new Simulator(timer)
+      const step = faker.datatype.number()
+      const simulator = new Simulator(step)
 
       expect(simulator.getDimensions()).toBeUndefined()
       expect(() => simulator.loop()).toThrowError(MSG_ERR_DIMENSIONS_NOT_SET)
@@ -21,7 +21,7 @@ describe('Simulator', () => {
   })
 
   describe('dimensions are set', () => {
-    it('increments timer', () => {
+    it('increments step', () => {
       const initialTimer = faker.datatype.number()
       const dimensions: IRectangle = {
         x: faker.datatype.number(),
@@ -53,7 +53,7 @@ describe('Simulator', () => {
       { position: { x: 0, y: -1 }, err: MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER },
       { position: { x: 0, y: dimensions.y + 1 }, err: MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER },
     ])('$err', (data: { position: IObjectPosition, err: string }) => {
-      expect(() => simulator.spawn(new Object(), data.position)).toThrowError(data.err)
+      expect(() => simulator.spawn(new SimObject(), data.position)).toThrowError(data.err)
     })
 
     it('should push to Simulator::objects a new SimObjectWrapper', () => {
@@ -62,7 +62,7 @@ describe('Simulator', () => {
         y: faker.datatype.number({ min: 0, max: dimensions.y }),
       }
 
-      simulator.spawn(new Object(), position)
+      simulator.spawn(new SimObject(), position)
 
       expect(simulator.getObjects()).toHaveLength(1)
     })
