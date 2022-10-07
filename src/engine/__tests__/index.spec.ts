@@ -1,4 +1,4 @@
-import { IObjectPosition, IRectangle, SimObject, SimObjectWrapper, Simulator } from '../index.js'
+import { EnumObjectCommand, EnumObjectOrientation, IObjectPosition, IRectangle, SimObject, SimObjectWrapper, Simulator } from '../index.js'
 
 import { faker } from '@faker-js/faker'
 import {
@@ -102,6 +102,58 @@ describe('Simulator', () => {
       simulation.setObjects([...staticObjects, ...dynamicObjects])
 
       expect(simulation.getDynamicObjects()).toHaveLength(dynamicObjects.length)
+    })
+  })
+
+  describe('Simulator::calculateObjectNextStep', () => {
+    let simulation: Simulator, dimensions: IRectangle
+
+    beforeAll(() => {
+      dimensions = {
+        x: 5,
+        y: 5,
+      }
+      simulation = new Simulator(0, dimensions)
+    })
+
+    describe('Command: STOP', () => {
+      it('should stay at the same place if command is STOP', () => {
+        const object = new SimObject()
+        const initialPosition: IObjectPosition = { x: 2, y: 2 }
+        const objectWrapper = new SimObjectWrapper(object, initialPosition, true)
+
+        simulation.setObjects([objectWrapper])
+
+        objectWrapper.setCommand(EnumObjectCommand.STOP)
+
+        const result = simulation.calculateObjectNextStep(objectWrapper)
+
+        expect(result).toBe(true)
+        expect(objectWrapper.getPosition()).toEqual(initialPosition)
+      })
+    })
+
+    describe('Command: FORWARD', () => {
+      it.each([
+        { orientation: EnumObjectOrientation.YPOS, expectedPosition: { x: 2, y: 3 } },
+        { orientation: EnumObjectOrientation.YNEG, expectedPosition: { x: 2, y: 1 } },
+        { orientation: EnumObjectOrientation.XPOS, expectedPosition: { x: 3, y: 2 } },
+        { orientation: EnumObjectOrientation.XNEG, expectedPosition: { x: 1, y: 2 } },
+      ])('should go forward if there is space', (data: { orientation: EnumObjectOrientation, expectedPosition: IObjectPosition }) => {
+        const object = new SimObject()
+        const initialPosition: IObjectPosition = { x: 2, y: 2 }
+        const objectWrapper = new SimObjectWrapper(object, initialPosition, true)
+
+        objectWrapper.setCommand(EnumObjectCommand.FORWARD)
+        objectWrapper.setOrientation(data.orientation)
+
+        simulation.setObjects([objectWrapper])
+
+        const result = simulation.calculateObjectNextStep(objectWrapper)
+
+        expect(result).toBe(true)
+        expect(objectWrapper.getPosition()).toEqual(data.expectedPosition)
+      })
     })
   })
 })

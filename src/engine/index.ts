@@ -10,6 +10,13 @@ export interface IObjectPosition {
   y: number
 }
 
+export enum EnumObjectOrientation {
+  YPOS,
+  YNEG,
+  XPOS,
+  XNEG,
+}
+
 export enum EnumObjectCommand {
   STOP,
   FORWARD,
@@ -22,7 +29,8 @@ export interface ISimulationStep {
 }
 
 export class SimObjectWrapper {
-  private command: EnumObjectCommand = EnumObjectCommand.STOP
+  private command = EnumObjectCommand.STOP
+  private orientation = EnumObjectOrientation.YPOS
 
   constructor(
     private simObject: SimObject,
@@ -33,6 +41,16 @@ export class SimObjectWrapper {
   getCommand(): EnumObjectCommand {
     return this.command
   }
+  setCommand(command: EnumObjectCommand): void {
+    this.command = command
+  }
+
+  getOrientation(): EnumObjectOrientation {
+    return this.orientation
+  }
+  setOrientation(orientation: EnumObjectOrientation): void {
+    this.orientation = orientation
+  }
 
   getSimObject(): SimObject {
     return this.simObject
@@ -40,6 +58,9 @@ export class SimObjectWrapper {
 
   getPosition(): IObjectPosition {
     return this.position
+  }
+  setPosition(position: IObjectPosition): void {
+    this.position = position
   }
 }
 
@@ -68,8 +89,48 @@ export class Simulator {
     return
   }
 
-  calculateObjectNextStep(objectWrapper: SimObjectWrapper): void {
-    return
+  calculateObjectNextStep(objectWrapper: SimObjectWrapper): boolean {
+    if (objectWrapper.getCommand() === EnumObjectCommand.STOP) {
+      return true
+    }
+
+    if (objectWrapper.getCommand() === EnumObjectCommand.FORWARD) {
+      if (this.isForwardPossible(objectWrapper.getPosition(), objectWrapper.getOrientation())) {
+        this.setObjectWrapperNewPosition(objectWrapper)
+
+        return true
+      } else {
+        return false
+      }
+    }
+
+    return false
+  }
+
+  isForwardPossible(position: IObjectPosition, orientation: EnumObjectOrientation): boolean {
+    return true
+  }
+
+  setObjectWrapperNewPosition(objectWrapper: SimObjectWrapper): void {
+    const currentPosition = objectWrapper.getPosition()
+
+    switch (objectWrapper.getOrientation()) {
+      case EnumObjectOrientation.YPOS:
+        objectWrapper.setPosition({ x: currentPosition.x, y: currentPosition.y + 1 })
+        break;
+
+      case EnumObjectOrientation.YNEG:
+        objectWrapper.setPosition({ x: currentPosition.x, y: currentPosition.y - 1 })
+        break;
+
+      case EnumObjectOrientation.XPOS:
+        objectWrapper.setPosition({ x: currentPosition.x + 1, y: currentPosition.y })
+        break;
+
+      case EnumObjectOrientation.XNEG:
+        objectWrapper.setPosition({ x: currentPosition.x - 1, y: currentPosition.y })
+        break;
+    }
   }
 
   calculateNextCommands(): void {
