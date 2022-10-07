@@ -86,6 +86,7 @@ export class Simulator {
     for (const objectWrapper of this.getDynamicObjects()) {
       this.calculateObjectNextStep(objectWrapper)
     }
+
     return
   }
 
@@ -95,7 +96,7 @@ export class Simulator {
     }
 
     if (objectWrapper.getCommand() === EnumObjectCommand.FORWARD) {
-      if (this.isForwardPossible(objectWrapper.getPosition(), objectWrapper.getOrientation())) {
+      if (this.isForwardPossible(objectWrapper)) {
         this.setObjectWrapperNewPosition(objectWrapper)
 
         return true
@@ -107,8 +108,28 @@ export class Simulator {
     return false
   }
 
-  isForwardPossible(position: IObjectPosition, orientation: EnumObjectOrientation): boolean {
-    return true
+  isForwardPossible(objectWrapper: SimObjectWrapper): boolean {
+    let isPossible
+
+    switch(objectWrapper.getOrientation()) {
+      case EnumObjectOrientation.YPOS:
+        isPossible = objectWrapper.getPosition().y < this.dimensions.y
+        break;
+
+      case EnumObjectOrientation.YNEG:
+        isPossible = objectWrapper.getPosition().y > 1
+        break;
+
+      case EnumObjectOrientation.XPOS:
+        isPossible = objectWrapper.getPosition().x < this.dimensions.x
+        break;
+
+      case EnumObjectOrientation.XNEG:
+        isPossible = objectWrapper.getPosition().x > 1
+        break;
+    }
+
+    return isPossible
   }
 
   setObjectWrapperNewPosition(objectWrapper: SimObjectWrapper): void {
@@ -158,10 +179,13 @@ export class Simulator {
   spawn(objectWrapper): void {
     if (objectWrapper.position.x < 0)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_LOWER)
+
     if (objectWrapper.position.x > this.dimensions.x)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_HIGHER)
+
     if (objectWrapper.position.y < 0)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER)
+
     if (objectWrapper.position.y > this.dimensions.y)
       throw new Error(MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER)
 

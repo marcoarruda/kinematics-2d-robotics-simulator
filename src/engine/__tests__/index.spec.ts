@@ -156,4 +156,57 @@ describe('Simulator', () => {
       })
     })
   })
+
+  describe('Simulator::isForwardPossible', () => {
+    describe('Boundaries', () => {
+      let simulation: Simulator
+
+      beforeAll(() => {
+        simulation = new Simulator(0, { x: 5, y: 5 })
+      })
+
+      it.each([
+        { position: { x: 5, y: 5 }, orientation: EnumObjectOrientation.YPOS },
+        { position: { x: 5, y: 1 }, orientation: EnumObjectOrientation.YNEG },
+        { position: { x: 5, y: 5 }, orientation: EnumObjectOrientation.XPOS },
+        { position: { x: 1, y: 5 }, orientation: EnumObjectOrientation.XNEG },
+      ])('should prevent going beyond the boundaries', (data: { position: IObjectPosition, orientation: EnumObjectOrientation }) => {
+        const object = new SimObject()
+        const objectWrapper = new SimObjectWrapper(object, data.position, true)
+
+        objectWrapper.setOrientation(data.orientation)
+
+        simulation.setObjects([objectWrapper])
+
+        expect(simulation.isForwardPossible(objectWrapper)).toBe(false)
+      })
+    })
+
+    describe('Obstacles', () => {
+      let simulation: Simulator
+
+      beforeAll(() => {
+        simulation = new Simulator(0, { x: 5, y: 5 })
+      })
+
+      it.each([
+        { position: { x: 2, y: 2 }, obstacle: { x: 2, y: 3 }, orientation: EnumObjectOrientation.YPOS },
+        { position: { x: 2, y: 2 }, obstacle: { x: 2, y: 1 }, orientation: EnumObjectOrientation.YNEG },
+        { position: { x: 2, y: 2 }, obstacle: { x: 3, y: 2 }, orientation: EnumObjectOrientation.XPOS },
+        { position: { x: 2, y: 2 }, obstacle: { x: 1, y: 2 }, orientation: EnumObjectOrientation.XNEG },
+      ])('should prevent going over obstacles', (data: { position: IObjectPosition, obstacle: IObjectPosition, orientation: EnumObjectOrientation }) => {
+        const object = new SimObject()
+        const objectWrapper = new SimObjectWrapper(object, data.position, true)
+
+        objectWrapper.setOrientation(data.orientation)
+
+        const obstacle = new SimObject()
+        const obstacleWrapper = new SimObjectWrapper(obstacle, data.obstacle)
+
+        simulation.setObjects([objectWrapper, obstacleWrapper])
+
+        expect(simulation.isForwardPossible(objectWrapper)).toBe(false)
+      })
+    })
+  })
 })
