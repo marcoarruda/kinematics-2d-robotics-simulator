@@ -86,8 +86,6 @@ export class Simulator {
     for (const objectWrapper of this.getDynamicObjects()) {
       this.calculateObjectNextStep(objectWrapper)
     }
-
-    return
   }
 
   calculateObjectNextStep(objectWrapper: SimObjectWrapper): boolean {
@@ -109,27 +107,40 @@ export class Simulator {
   }
 
   isForwardPossible(objectWrapper: SimObjectWrapper): boolean {
-    let isPossible
+    const nextPosition = this.calculateObjectWrapperNextPosition(
+      objectWrapper.getPosition(),
+      objectWrapper.getOrientation()
+    )
 
-    switch(objectWrapper.getOrientation()) {
+    const beyondBoundaries = nextPosition.x < 1 || nextPosition.x > this.dimensions.x || nextPosition.y < 1 || nextPosition.y > this.dimensions.y
+
+    const noObstacle = this.objects.filter(objectWrapper => objectWrapper.getPosition().x === nextPosition.x && objectWrapper.getPosition().y === nextPosition.y).length === 0
+
+    return !beyondBoundaries && noObstacle
+  }
+
+  calculateObjectWrapperNextPosition(position: IObjectPosition, orientation: EnumObjectOrientation): IObjectPosition {
+    let nextPosition: IObjectPosition
+
+    switch (orientation) {
       case EnumObjectOrientation.YPOS:
-        isPossible = objectWrapper.getPosition().y < this.dimensions.y
+        nextPosition = { x: position.x, y: position.y + 1 }
         break;
 
       case EnumObjectOrientation.YNEG:
-        isPossible = objectWrapper.getPosition().y > 1
+        nextPosition = { x: position.x, y: position.y - 1 }
         break;
 
       case EnumObjectOrientation.XPOS:
-        isPossible = objectWrapper.getPosition().x < this.dimensions.x
+        nextPosition = { x: position.x + 1, y: position.y }
         break;
 
       case EnumObjectOrientation.XNEG:
-        isPossible = objectWrapper.getPosition().x > 1
+        nextPosition = { x: position.x - 1, y: position.y }
         break;
     }
 
-    return isPossible
+    return nextPosition
   }
 
   setObjectWrapperNewPosition(objectWrapper: SimObjectWrapper): void {
