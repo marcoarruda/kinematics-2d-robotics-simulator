@@ -1,4 +1,7 @@
-import { EnumObjectCommand, EnumObjectOrientation, IObjectPosition, IRectangle, SimObject, SimObjectWrapper, Simulator } from '../index.js'
+import { SimObject, SimObjectWrapper } from '../classes.js'
+import { Simulation } from '../index.js'
+
+import { EnumObjectCommand, EnumObjectOrientation, IObjectPosition, IRectangle } from '../types.js'
 
 import { faker } from '@faker-js/faker'
 import {
@@ -9,14 +12,14 @@ import {
   MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER
 } from '../constants.js'
 
-describe('Simulator', () => {
+describe('Simulation', () => {
   describe('no dimensions set', () => {
     it('loop throws exception if dimensions are not set', () => {
       const step = faker.datatype.number()
-      const simulator = new Simulator(step)
+      const simulation = new Simulation(step)
 
-      expect(simulator.getDimensions()).toBeUndefined()
-      expect(() => simulator.loop()).toThrowError(MSG_ERR_DIMENSIONS_NOT_SET)
+      expect(simulation.getDimensions()).toBeUndefined()
+      expect(() => simulation.loop()).toThrowError(MSG_ERR_DIMENSIONS_NOT_SET)
     })
   })
 
@@ -28,15 +31,15 @@ describe('Simulator', () => {
         y: faker.datatype.number()
       }
 
-      const simulator = new Simulator(initialTimer, dimensions)
+      const simulation = new Simulation(initialTimer, dimensions)
 
-      expect(simulator.getDimensions()).toBe(dimensions)
-      expect(simulator.loop()).toBe(initialTimer + 1)
+      expect(simulation.getDimensions()).toBe(dimensions)
+      expect(simulation.loop()).toBe(initialTimer + 1)
     })
   })
 
-  describe('Simulator::spawn', () => {
-    let simulator: Simulator
+  describe('Simulation::spawn', () => {
+    let simulation: Simulation
 
     const dimensions: IRectangle = {
       x: faker.datatype.number(),
@@ -44,7 +47,7 @@ describe('Simulator', () => {
     }
 
     beforeEach(() => {
-      simulator = new Simulator(faker.datatype.number(), dimensions)
+      simulation = new Simulation(faker.datatype.number(), dimensions)
     })
 
     it.each([
@@ -54,10 +57,10 @@ describe('Simulator', () => {
       { position: { x: 0, y: dimensions.y + 1 }, err: MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER },
     ])('$err', (data: { position: IObjectPosition, err: string }) => {
       const simObjectWrapper = new SimObjectWrapper(new SimObject(), data.position)
-      expect(() => simulator.spawn(simObjectWrapper)).toThrowError(data.err)
+      expect(() => simulation.spawn(simObjectWrapper)).toThrowError(data.err)
     })
 
-    it('should push to Simulator::objects a new SimObjectWrapper', () => {
+    it('should push to Simulation::objects a new SimObjectWrapper', () => {
       const position: IObjectPosition = {
         x: faker.datatype.number({ min: 0, max: dimensions.x }),
         y: faker.datatype.number({ min: 0, max: dimensions.y }),
@@ -65,15 +68,15 @@ describe('Simulator', () => {
 
       const simObjectWrapper = new SimObjectWrapper(new SimObject(), position)
 
-      simulator.spawn(simObjectWrapper)
+      simulation.spawn(simObjectWrapper)
 
-      expect(simulator.getObjects()).toHaveLength(1)
+      expect(simulation.getObjects()).toHaveLength(1)
     })
   })
 
-  describe('Simulator::getObjects', () => {
+  describe('Simulation::getObjects', () => {
     it('should return all objects', () => {
-      const simulation = new Simulator(0, { x: 10, y: 10 })
+      const simulation = new Simulation(0, { x: 10, y: 10 })
 
       const objects = [
         new SimObjectWrapper(new SimObject(), { x: 0, y: 0 }, false),
@@ -86,9 +89,9 @@ describe('Simulator', () => {
     })
   })
 
-  describe('Simulator::getDynamicObjects', () => {
+  describe('Simulation::getDynamicObjects', () => {
     it('should return only dynamic objects', () => {
-      const simulation = new Simulator(0, { x: 10, y: 10 })
+      const simulation = new Simulation(0, { x: 10, y: 10 })
 
       const staticObjects = [
         new SimObjectWrapper(new SimObject(), { x: 0, y: 0 }, false),
@@ -105,15 +108,15 @@ describe('Simulator', () => {
     })
   })
 
-  describe('Simulator::calculateObjectNextStep', () => {
-    let simulation: Simulator, dimensions: IRectangle
+  describe('Simulation::calculateObjectNextStep', () => {
+    let simulation: Simulation, dimensions: IRectangle
 
     beforeAll(() => {
       dimensions = {
         x: 5,
         y: 5,
       }
-      simulation = new Simulator(0, dimensions)
+      simulation = new Simulation(0, dimensions)
     })
 
     describe('Command: STOP', () => {
@@ -157,12 +160,12 @@ describe('Simulator', () => {
     })
   })
 
-  describe('Simulator::isForwardPossible', () => {
+  describe('Simulation::isForwardPossible', () => {
     describe('Boundaries', () => {
-      let simulation: Simulator
+      let simulation: Simulation
 
       beforeAll(() => {
-        simulation = new Simulator(0, { x: 5, y: 5 })
+        simulation = new Simulation(0, { x: 5, y: 5 })
       })
 
       it.each([
@@ -183,10 +186,10 @@ describe('Simulator', () => {
     })
 
     describe('Obstacles', () => {
-      let simulation: Simulator
+      let simulation: Simulation
 
       beforeAll(() => {
-        simulation = new Simulator(0, { x: 5, y: 5 })
+        simulation = new Simulation(0, { x: 5, y: 5 })
       })
 
       it.each([

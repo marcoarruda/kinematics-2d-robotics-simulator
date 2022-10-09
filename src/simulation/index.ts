@@ -1,70 +1,20 @@
-import { MSG_ERR_DIMENSIONS_NOT_SET, MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_HIGHER, MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_LOWER, MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER, MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER } from "./constants.js"
+import { SimObjectWrapper } from "./classes.js"
+import {
+  MSG_ERR_DIMENSIONS_NOT_SET,
+  MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_HIGHER,
+  MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_LOWER,
+  MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER,
+  MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER
+} from "./constants.js"
 
-export interface IRectangle {
-  x: number
-  y: number
-}
+import {
+  EnumObjectCommand,
+  EnumObjectOrientation,
+  IObjectPosition,
+  IRectangle
+} from "./types.js"
 
-export interface IObjectPosition {
-  x: number
-  y: number
-}
-
-export enum EnumObjectOrientation {
-  YPOS,
-  YNEG,
-  XPOS,
-  XNEG,
-}
-
-export enum EnumObjectCommand {
-  STOP,
-  FORWARD,
-  TURN_LEFT_90,
-  TURN_RIGHT_90,
-}
-
-export interface ISimulationStep {
-  objects: SimObject
-}
-
-export class SimObjectWrapper {
-  private command = EnumObjectCommand.STOP
-  private orientation = EnumObjectOrientation.YPOS
-
-  constructor(
-    private simObject: SimObject,
-    private position: IObjectPosition,
-    public dynamic: boolean = false,
-  ) { }
-
-  getCommand(): EnumObjectCommand {
-    return this.command
-  }
-  setCommand(command: EnumObjectCommand): void {
-    this.command = command
-  }
-
-  getOrientation(): EnumObjectOrientation {
-    return this.orientation
-  }
-  setOrientation(orientation: EnumObjectOrientation): void {
-    this.orientation = orientation
-  }
-
-  getSimObject(): SimObject {
-    return this.simObject
-  }
-
-  getPosition(): IObjectPosition {
-    return this.position
-  }
-  setPosition(position: IObjectPosition): void {
-    this.position = position
-  }
-}
-
-export class Simulator {
+export class Simulation {
   private objects: SimObjectWrapper[] = []
 
   constructor(private step: number, private dimensions?: IRectangle) {
@@ -202,7 +152,4 @@ export class Simulator {
 
     this.objects.push(objectWrapper)
   }
-}
-
-export class SimObject {
 }
