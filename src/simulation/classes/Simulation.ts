@@ -1,21 +1,23 @@
-import { SimObjectWrapper } from "./classes.js"
 import {
   MSG_ERR_DIMENSIONS_NOT_SET,
   MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_HIGHER,
   MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_LOWER,
   MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_HIGHER,
   MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_Y_LOWER
-} from "./constants.js"
+} from "../constants.js"
+import { SimObjectWrapper } from "./SimObjectWrapper.js"
 
 import {
   EnumObjectCommand,
   EnumObjectOrientation,
   IObjectPosition,
   IRectangle
-} from "./types.js"
+} from "../types.js"
 
 export class Simulation {
   private objects: SimObjectWrapper[] = []
+
+  private steps: Array<{ objects: SimObjectWrapper[] }> = []
 
   constructor(private step: number, private dimensions?: IRectangle) {
   }

@@ -1,9 +1,9 @@
-import { SimObject, SimObjectWrapper } from '../classes.js'
-import { Simulation } from '../index.js'
+
 
 import { EnumObjectCommand, EnumObjectOrientation, IObjectPosition, IRectangle } from '../types.js'
 
 import { faker } from '@faker-js/faker'
+import { SimObject, SimObjectWrapper, Simulation } from '../classes/index.js'
 import {
   MSG_ERR_DIMENSIONS_NOT_SET,
   MSG_ERR_OBJECT_OUT_OF_BOUNDARIES_X_HIGHER,

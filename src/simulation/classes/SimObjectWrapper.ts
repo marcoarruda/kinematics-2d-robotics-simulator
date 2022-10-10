@@ -1,7 +1,5 @@
-import { EnumObjectCommand, EnumObjectOrientation, IObjectPosition } from "./types.js"
-
-export class SimObject {
-}
+import { EnumObjectCommand, EnumObjectOrientation, IObjectPosition, ISimObjectWrapper } from "../types.js"
+import { SimObject } from "./SimObject.js"
 
 export class SimObjectWrapper {
   private command = EnumObjectCommand.STOP
@@ -12,6 +10,13 @@ export class SimObjectWrapper {
     private position: IObjectPosition,
     public dynamic: boolean = false,
   ) { }
+
+  getCurrentStatus(): ISimObjectWrapper {
+    return {
+      dynamic: this.dynamic,
+      position: this.getPosition()
+    }
+  }
 
   getCommand(): EnumObjectCommand {
     return this.command

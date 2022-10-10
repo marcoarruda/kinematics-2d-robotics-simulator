@@ -1,4 +1,4 @@
-import { SimObject } from "./classes.js"
+import { SimObject } from "./classes/SimObject.js"
 
 export interface IRectangle {
   x: number
@@ -26,4 +26,9 @@ export enum EnumObjectCommand {
 
 export interface ISimulationStep {
   objects: SimObject
+}
+
+export interface ISimObjectWrapper {
+  position: IObjectPosition
+  dynamic: boolean
 }
