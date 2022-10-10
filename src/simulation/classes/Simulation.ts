@@ -11,15 +11,23 @@ import {
   EnumObjectCommand,
   EnumObjectOrientation,
   IObjectPosition,
-  IRectangle
+  IRectangle,
+  ISimObjectWrapper,
+  ISimulationStep
 } from "../types.js"
 
 export class Simulation {
-  private objects: SimObjectWrapper[] = []
+  private steps: ISimulationStep[] = []
 
-  private steps: Array<{ objects: SimObjectWrapper[] }> = []
-
-  constructor(private step: number, private dimensions?: IRectangle) {
+  constructor(
+    private step: number,
+    private dimensions?: IRectangle,
+    private objects: SimObjectWrapper[] = []
+  ) {
+    if (this.objects.length > 0) {
+      this.setObjects(objects)
+      this.createSimulationStep()
+    }
   }
 
   loop(): number {
@@ -29,9 +37,30 @@ export class Simulation {
 
     this.calculateNextCommands()
 
+    this.createSimulationStep()
+
     this.step++
 
     return this.step
+  }
+
+  createSimulationStep(): void {
+    console.log('createSimulationStep')
+
+    this.steps.push(this.getCurrentStatus())
+  }
+
+  getCurrentStatus(): ISimulationStep {
+    const objects: ISimObjectWrapper[] = this.getObjects().map(simObjectWrapper => ({
+      dynamic: simObjectWrapper.dynamic,
+      position: simObjectWrapper.getPosition(),
+    }))
+
+    return { objects }
+  }
+
+  getSimulationJSON(): string {
+    return JSON.stringify(this.steps)
   }
 
   calculateNextStep(): void {
@@ -125,6 +154,8 @@ export class Simulation {
     for (const objectWrapper of objects) {
       this.spawn(objectWrapper)
     }
+
+    this.createSimulationStep()
   }
 
   getDimensions(): IRectangle {
