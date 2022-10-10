@@ -20,8 +20,6 @@ describe('Simulation only with obstacles', () => {
     }
     simulation = new Simulation(0, dimensions)
 
-    console.log('before setObjects')
-
     simulation.setObjects(objects)
   })
 
@@ -58,6 +56,12 @@ describe('Simulation only with obstacles', () => {
 
       expect(data.object.dynamic).toBe(step.objects.at(data.index).dynamic)
       expect(data.object.getPosition()).toBe(step.objects.at(data.index).position)
+    })
+
+    it('should print steps', () => {
+      console.log(simulation.getSimulationJSON())
+
+      expect(1).toBeTruthy()
     })
   })
 })

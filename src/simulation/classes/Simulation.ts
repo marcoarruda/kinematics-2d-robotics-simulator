@@ -45,8 +45,6 @@ export class Simulation {
   }
 
   createSimulationStep(): void {
-    console.log('createSimulationStep')
-
     this.steps.push(this.getCurrentStatus())
   }
 
